@@ -5,7 +5,7 @@ from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.dml.color import RGBColor
 from pptx.enum.text import  MSO_AUTO_SIZE
-
+from pptx.shapes.connector import Connector
 
 def get_text_format(shape, default_font_size: int = 18):
     """Extract font size and color from a text shape."""
@@ -188,6 +188,10 @@ def get_slide_code(slide, output_dir: str, slide_shape: tuple[int, int]):
         contents.append(f"set_background_color(slide, ({bg_color[0]}, {bg_color[1]}, {bg_color[2]}))\n\n")
     
     # process shapes
+    import ipdb; ipdb.set_trace();
+    for ind, shape in enumerate(slide.shapes):
+        print(f'ind {ind} shape type {shape.shape_type} shape class {shape.__class__}')
+
     image_counter = 0
     for shape in slide.shapes:
         if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
@@ -200,14 +204,27 @@ def get_slide_code(slide, output_dir: str, slide_shape: tuple[int, int]):
             coords = format_coords(coords)
             contents.append(f"add_image(slide, 'media/{os.path.basename(image_path)}', {coords})\n")
             image_counter += 1
+        elif shape.shape_type == MSO_SHAPE_TYPE.LINE:
+            import ipdb; ipdb.set_trace();
+            line = shape.line
+            line_width = line.width
+            line_tail_end = line.tailEnd
+            begin_x = shape.begin_x.inches
+            begin_y = shape.begin_y.inches
+            end_x = shape.end_x.inches
+            end_y = shape.end_y.inches
+            contents.append(f"add_line(slide, {begin_x}, {begin_y}, {end_x}, {end_y})\n")
+            
         elif shape.shape_type == MSO_SHAPE_TYPE.PLACEHOLDER and shape.placeholder_format.type == 1:
             # Title placeholder
+            # import ipdb; ipdb.set_trace();
             text = shape.text_frame.text
             font_size, font_color = get_text_format(shape)
             bg_color = get_shape_background_color(shape)
             contents.append(f"add_title(slide, {text!r}, font_size={int(font_size)}, font_color={font_color}, background_color={bg_color})\n")
         elif shape.has_text_frame:
             # determine if it's bullet points or regular text
+            # import ipdb; ipdb.set_trace();
             texts = [p.text for p in shape.text_frame.paragraphs]
             is_bullet = any(p.level > 0 for p in shape.text_frame.paragraphs)
             coords = [shape.left.inches, shape.top.inches, shape.width.inches, shape.height.inches]

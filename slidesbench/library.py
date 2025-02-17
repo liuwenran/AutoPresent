@@ -1,8 +1,8 @@
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_AUTO_SIZE
-from mysearchlib import GoogleSearch, Dalle3, LLM
-
+# from mysearchlib import GoogleSearch, Dalle3, LLM
+from pptx.enum.shapes import MSO_CONNECTOR_TYPE, MSO_SHAPE, MSO_SHAPE_TYPE
 
 def add_title(
     slide, text: str, font_size: int = 44, 
@@ -27,6 +27,17 @@ def add_title(
     if background_color is not None:
         title_shape.fill.solid()
         title_shape.fill.fore_color.rgb = RGBColor(*background_color)
+    return slide
+
+
+def add_line(slide, begin_x: float, begin_y: float, end_x: float, end_y: float):
+    connector = slide.shapes.add_connector(MSO_CONNECTOR_TYPE.STRAIGHT, Inches(begin_x), Inches(begin_y), Inches(end_x), Inches(end_y))
+    connector.line.color.rgb = RGBColor(0, 0, 0)
+    import ipdb; ipdb.set_trace();
+    connector.line.tailEnd = ('type', 'arrow')
+
+    # from pptx.enum.dml import MSO_LINE_DASH_STYLE
+    # connector.line.dash_style = MSO_LINE_DASH_STYLE.DASH
     return slide
 
 
